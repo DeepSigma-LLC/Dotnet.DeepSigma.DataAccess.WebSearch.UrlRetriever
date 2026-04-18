@@ -1,0 +1,16 @@
+# Minimal SearXNG settings for local live testing.
+# Inherits all defaults from the SearXNG image and only overrides what is
+# required for the DeepSigma.DataAccess.WebSearch live tests to run.
+#
+# Usage:
+#   docker compose up        (uses docker-compose.yml in this directory)
+#
+# The critical override is search.formats — the SearXNG Docker image ships
+# with only "html" enabled, which causes HTTP 403 on JSON API requests.
+
+use_default_settings: true
+
+search:
+  formats:
+    - html
+    - json
