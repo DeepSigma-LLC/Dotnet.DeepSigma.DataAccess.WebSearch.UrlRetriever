@@ -4,7 +4,20 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Title>DeepSigma.DataAccess.WebSearch.UrlExtractor</Title>
+    <Authors>DeepSigma LLC</Authors>
+    <Description>A dotnet package for web search URL extraction.</Description>
+    <PackageProjectUrl>https://github.com/DeepSigma-LLC/Dotnet.DeepSigma.DataAccess.WebSearch.UrlExtractor</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/DeepSigma-LLC/Dotnet.DeepSigma.DataAccess.WebSearch.UrlExtractor</RepositoryUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.5.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.6" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Update="Assets\DeepSigma.png">
