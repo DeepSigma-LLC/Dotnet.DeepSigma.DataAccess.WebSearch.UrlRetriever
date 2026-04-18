@@ -1,9 +1,9 @@
-using DeepSigma.DataAccess.WebSearch.UrlExtractor.Internal;
-using DeepSigma.DataAccess.WebSearch.UrlExtractor.Internal.Dto;
-using DeepSigma.DataAccess.WebSearch.UrlExtractor.Models;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Internal;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Internal.Dto;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 using Xunit;
 
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Test;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Test;
 
 public class ResponseMappingTests
 {

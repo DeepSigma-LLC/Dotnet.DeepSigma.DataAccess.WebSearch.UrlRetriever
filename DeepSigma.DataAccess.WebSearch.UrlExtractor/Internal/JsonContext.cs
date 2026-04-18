@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
-using DeepSigma.DataAccess.WebSearch.UrlExtractor.Internal.Dto;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Internal.Dto;
 
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Internal;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Internal;
 
 /// <summary>
 /// Source-generated <see cref="JsonSerializerContext"/> used to

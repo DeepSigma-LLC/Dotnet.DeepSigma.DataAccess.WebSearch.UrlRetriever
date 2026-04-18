@@ -1,4 +1,4 @@
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Models;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 
 /// <summary>
 /// The top-level response returned by <see cref="ISearxngClient.SearchAsync"/>.

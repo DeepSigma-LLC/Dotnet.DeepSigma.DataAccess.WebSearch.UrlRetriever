@@ -1,9 +1,9 @@
-﻿using DeepSigma.DataAccess.WebSearch.UrlExtractor.Exceptions;
-using DeepSigma.DataAccess.WebSearch.UrlExtractor.Models;
+﻿using DeepSigma.DataAccess.WebSearch.UrlRetriever.Exceptions;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Test;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Test;
 
 public class LiveTest
 {

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Internal.Dto;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Internal.Dto;
 
 /// <summary>
 /// Internal DTO that mirrors the top-level JSON object returned by the SearXNG <c>/search</c> endpoint.

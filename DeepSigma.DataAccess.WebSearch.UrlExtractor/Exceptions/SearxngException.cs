@@ -1,4 +1,4 @@
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Exceptions;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Exceptions;
 
 /// <summary>
 /// Abstract base class for all exceptions thrown by the SearXNG client library.

@@ -1,4 +1,4 @@
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Exceptions;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Exceptions;
 
 /// <summary>
 /// Thrown when the SearXNG instance cannot be reached due to a network-level failure,

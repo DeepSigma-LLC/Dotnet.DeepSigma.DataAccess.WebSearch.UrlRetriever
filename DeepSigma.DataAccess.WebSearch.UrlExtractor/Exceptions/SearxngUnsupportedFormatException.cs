@@ -1,4 +1,4 @@
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Exceptions;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Exceptions;
 
 /// <summary>
 /// Thrown when the SearXNG instance returns HTTP 403, indicating that the JSON response

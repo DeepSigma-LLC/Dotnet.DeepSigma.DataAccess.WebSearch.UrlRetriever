@@ -1,14 +1,14 @@
 using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
-using DeepSigma.DataAccess.WebSearch.UrlExtractor.Exceptions;
-using DeepSigma.DataAccess.WebSearch.UrlExtractor.Internal;
-using DeepSigma.DataAccess.WebSearch.UrlExtractor.Internal.Dto;
-using DeepSigma.DataAccess.WebSearch.UrlExtractor.Models;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Exceptions;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Internal;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Internal.Dto;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever;
 
 /// <summary>
 /// Default implementation of <see cref="ISearxngClient"/> that communicates with a SearXNG

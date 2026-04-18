@@ -1,7 +1,7 @@
-using DeepSigma.DataAccess.WebSearch.UrlExtractor.Internal.Dto;
-using DeepSigma.DataAccess.WebSearch.UrlExtractor.Models;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Internal.Dto;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Internal;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Internal;
 
 /// <summary>
 /// Maps an internal <see cref="SearxngJsonResponse"/> DTO to the public

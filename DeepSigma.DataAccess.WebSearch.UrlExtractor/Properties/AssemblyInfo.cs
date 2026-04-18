@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("DeepSigma.DataAccess.WebSearch.UrlExtractor.Test")]
+[assembly: InternalsVisibleTo("DeepSigma.DataAccess.WebSearch.UrlRetriever.Test")]

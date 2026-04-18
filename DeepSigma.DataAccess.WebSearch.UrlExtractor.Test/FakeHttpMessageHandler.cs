@@ -1,4 +1,4 @@
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Test;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Test;
 
 internal sealed class FakeHttpMessageHandler : HttpMessageHandler
 {

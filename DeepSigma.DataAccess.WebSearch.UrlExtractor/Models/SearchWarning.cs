@@ -1,4 +1,4 @@
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Models;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 
 /// <summary>
 /// Represents a non-fatal warning attached to a <see cref="SearchResponse"/>,

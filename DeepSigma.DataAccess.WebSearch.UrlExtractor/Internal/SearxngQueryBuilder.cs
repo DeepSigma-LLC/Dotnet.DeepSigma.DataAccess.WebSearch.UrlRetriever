@@ -1,7 +1,7 @@
 using System.Globalization;
-using DeepSigma.DataAccess.WebSearch.UrlExtractor.Models;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Internal;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Internal;
 
 /// <summary>
 /// Builds URL-encoded query strings from a <see cref="SearchRequest"/>.

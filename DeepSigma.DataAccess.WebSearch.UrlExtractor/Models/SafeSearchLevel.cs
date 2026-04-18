@@ -1,4 +1,4 @@
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Models;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 
 /// <summary>
 /// Controls the safe-search filtering level sent to SearXNG via the <c>safesearch</c> query parameter.

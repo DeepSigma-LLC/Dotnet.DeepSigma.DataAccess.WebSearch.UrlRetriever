@@ -1,4 +1,4 @@
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Models;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 
 /// <summary>
 /// Encapsulates all parameters for a SearXNG search request.

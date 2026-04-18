@@ -1,4 +1,4 @@
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Exceptions;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Exceptions;
 
 /// <summary>
 /// Thrown when the SearXNG instance returns a 4xx HTTP response other than 403.

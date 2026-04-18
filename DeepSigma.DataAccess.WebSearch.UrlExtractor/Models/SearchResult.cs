@@ -1,4 +1,4 @@
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Models;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 
 /// <summary>
 /// Represents a single normalized search result returned by a SearXNG query.

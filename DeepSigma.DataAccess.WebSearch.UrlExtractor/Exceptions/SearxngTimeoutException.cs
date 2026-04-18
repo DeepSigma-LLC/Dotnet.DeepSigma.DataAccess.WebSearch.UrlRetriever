@@ -1,4 +1,4 @@
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Exceptions;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Exceptions;
 
 /// <summary>
 /// Thrown when a search request to SearXNG exceeds the configured timeout.

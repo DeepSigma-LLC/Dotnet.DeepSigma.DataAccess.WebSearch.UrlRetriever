@@ -1,4 +1,4 @@
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever;
 
 /// <summary>
 /// Strongly-typed configuration options for <see cref="ISearxngClient"/>.

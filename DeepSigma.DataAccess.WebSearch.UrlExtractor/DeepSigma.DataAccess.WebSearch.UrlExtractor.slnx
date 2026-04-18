@@ -1,4 +1,4 @@
 <Solution>
-  <Project Path="../DeepSigma.DataAccess.WebSearch.UrlExtractor.Test/DeepSigma.DataAccess.WebSearch.UrlExtractor.Test.csproj" />
-  <Project Path="DeepSigma.DataAccess.WebSearch.UrlExtractor.csproj" />
+  <Project Path="../DeepSigma.DataAccess.WebSearch.UrlExtractor.Test/DeepSigma.DataAccess.WebSearch.UrlRetriever.Test.csproj" />
+  <Project Path="DeepSigma.DataAccess.WebSearch.UrlRetriever.csproj" />
 </Solution>

@@ -1,6 +1,6 @@
-using DeepSigma.DataAccess.WebSearch.UrlExtractor.Models;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever;
 
 /// <summary>
 /// Defines the contract for executing searches against a SearXNG instance.

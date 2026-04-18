@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace DeepSigma.DataAccess.WebSearch.UrlExtractor.Internal.Dto;
+namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Internal.Dto;
 
 /// <summary>
 /// Internal DTO that represents a single result object within the SearXNG JSON response array.
