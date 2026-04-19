@@ -1,7 +1,7 @@
 namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 
 /// <summary>
-/// The top-level response returned by <see cref="ISearxngClient.SearchAsync"/>.
+/// The top-level response returned by <see cref="SearxngClient.SearchRawAsync"/>.
 /// </summary>
 /// <param name="Results">
 /// The ordered list of search results. May be empty but is never <see langword="null"/>.

@@ -14,7 +14,7 @@ namespace DeepSigma.DataAccess.WebSearch.UrlRetriever;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers <see cref="IUrlRetriver{TSearchOptions}"/> with a typed <see cref="HttpClient"/>,
+    /// Registers <see cref="IUrlRetriever{TSearchOptions}"/> with a typed <see cref="HttpClient"/>,
     /// options validation, and a standard resilience pipeline (retry + circuit breaker + timeout).
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add services to.</param>
@@ -38,7 +38,7 @@ public static class ServiceCollectionExtensions
                 "Timeout must be between 0 and 5 minutes.")
             .ValidateOnStart();
 
-        services.AddHttpClient<IUrlRetriver<SearchRequestOptions>, SearxngClient>((sp, http) =>
+        services.AddHttpClient<IUrlRetriever<SearchRequestOptions>, SearxngClient>((sp, http) =>
         {
             var options = sp.GetRequiredService<IOptions<SearxngOptions>>().Value;
 
@@ -58,7 +58,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registers <see cref="IUrlRetriver{TSearchOptions}"/> using a pre-configured <see cref="SearxngOptions"/>
+    /// Registers <see cref="IUrlRetriever{TSearchOptions}"/> using a pre-configured <see cref="SearxngOptions"/>
     /// instance, with a standard resilience pipeline (retry + circuit breaker + timeout).
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add services to.</param>

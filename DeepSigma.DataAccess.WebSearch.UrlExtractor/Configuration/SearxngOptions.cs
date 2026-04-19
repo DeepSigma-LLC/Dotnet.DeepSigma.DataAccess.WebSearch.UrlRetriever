@@ -3,11 +3,11 @@ using DeepSigma.DataAccess.WebSearch.Abstraction;
 namespace DeepSigma.DataAccess.WebSearch.UrlRetriever;
 
 /// <summary>
-/// Strongly-typed configuration options for <see cref="IUrlRetriver{SearchRequestOptions}"/>.
+/// Strongly-typed configuration options for <see cref="IUrlRetriever{SearchRequestOptions}"/>.
 /// </summary>
 /// <remarks>
 /// Register and validate these options by calling
-/// <see cref="ServiceCollectionExtensions.AddSearxngClient"/>. Options are validated
+/// <see cref="ServiceCollectionExtensions.AddSearxngClient(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Action{SearxngOptions})"/>. Options are validated
 /// eagerly at application startup via <c>ValidateOnStart</c>. At minimum,
 /// <see cref="BaseUri"/> must be set to an absolute URI before the client is used.
 /// </remarks>

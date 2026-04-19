@@ -16,12 +16,12 @@ namespace DeepSigma.DataAccess.WebSearch.UrlRetriever;
 /// 
 /// </summary>
 /// <remarks>
-/// Register this client via <see cref="ServiceCollectionExtensions.AddSearxngClient"/> rather than
+/// Register this client via <see cref="ServiceCollectionExtensions.AddSearxngClient(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Action{SearxngOptions})"/> rather than
 /// constructing it directly. That extension method configures the <see cref="HttpClient"/>,
 /// eagerly validates <see cref="SearxngOptions"/>, and attaches a standard resilience pipeline
 /// (retry, circuit breaker, and attempt timeout).
 /// </remarks>
-public sealed class SearxngClient :  IUrlRetriver<SearchRequestOptions>
+public sealed class SearxngClient :  IUrlRetriever<SearchRequestOptions>
 {
     private readonly HttpClient _httpClient;
     private readonly IOptions<SearxngOptions> _options;
@@ -50,9 +50,9 @@ public sealed class SearxngClient :  IUrlRetriver<SearchRequestOptions>
     /// <param name="requestOptions">Optional parameters to customize the search request.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>A list of <see cref="ResponseUrlRetrival"/> representing the search results.</returns>
-    public async Task<List<ResponseUrlRetrival>> SearchAsync(string query, SearchRequestOptions? requestOptions = null, CancellationToken? cancellationToken = null)
+    public async Task<List<ResponseUrlRetrival>> SearchAsync(string query, SearchRequestOptions? requestOptions = null, CancellationToken cancellationToken = default)
     {
-        SearchResponse response = await SearchAsync(query, requestOptions, cancellationToken ?? CancellationToken.None);
+        SearchResponse response = await SearchRawAsync(query, requestOptions, cancellationToken);
         return MapToResponseUrlRetrival(response).ToList();
     }
 
@@ -88,7 +88,7 @@ public sealed class SearxngClient :  IUrlRetriver<SearchRequestOptions>
     ///   </item>
     /// </list>
     /// </remarks>
-    public async Task<SearchResponse> SearchAsync(string query, SearchRequestOptions? requestOptions = null, CancellationToken cancellationToken = default)
+    public async Task<SearchResponse> SearchRawAsync(string query, SearchRequestOptions? requestOptions = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(query);
 
