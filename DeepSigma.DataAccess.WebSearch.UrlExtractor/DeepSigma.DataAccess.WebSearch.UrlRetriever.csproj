@@ -11,6 +11,7 @@
     <PackageProjectUrl>https://github.com/DeepSigma-LLC/Dotnet.DeepSigma.DataAccess.WebSearch.UrlRetriever</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DeepSigma-LLC/Dotnet.DeepSigma.DataAccess.WebSearch.UrlRetriever</RepositoryUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
