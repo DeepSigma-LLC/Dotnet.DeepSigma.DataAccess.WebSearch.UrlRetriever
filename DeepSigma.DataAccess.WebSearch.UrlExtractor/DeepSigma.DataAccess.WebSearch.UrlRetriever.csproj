@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DeepSigma.DataAccess.WebSearch.Abstraction" Version="2.0.0" />
+    <PackageReference Include="DeepSigma.DataAccess.WebSearch.Abstraction" Version="2.0.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.6" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.6" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.5.0" />
