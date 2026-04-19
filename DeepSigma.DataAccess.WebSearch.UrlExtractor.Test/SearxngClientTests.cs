@@ -53,13 +53,13 @@ public class SearxngClientTests
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         });
 
-        var result = await client.SearchAsync("test", cancellationToken: TestContext.Current.CancellationToken);
+        var results = await client.SearchAsync("test", cancellationToken: CancellationToken.None);
 
-        Assert.Single(result.Results);
-        Assert.Equal("Example", result.Results[0].Title);
-        Assert.Equal("https://example.com", result.Results[0].Url);
-        Assert.Equal("A snippet", result.Results[0].Snippet);
-        Assert.Equal("google", result.Results[0].Engine);
+        Assert.Single(results);
+        Assert.Equal("Example", results[0].Title);
+        Assert.Equal("https://example.com", results[0].Url);
+        Assert.Equal("A snippet", results[0].Snippet);
+        Assert.Equal("google", results[0].SearchEngine);
     }
 
     [Fact]
@@ -72,10 +72,9 @@ public class SearxngClientTests
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         });
 
-        var result = await client.SearchAsync("test", cancellationToken: CancellationToken.None);
+        var results = await client.SearchAsync("test", cancellationToken: CancellationToken.None);
 
-        Assert.Empty(result.Results);
-        Assert.Equal(0, result.Metadata.ResultCount);
+        Assert.Empty(results);
     }
 
     [Fact]
@@ -147,7 +146,7 @@ public class SearxngClientTests
     }
 
     [Fact]
-    public async Task SearchAsync_MetadataReflectsQueryAndPage()
+    public async Task SearchRawAsync_MetadataReflectsQueryAndPage()
     {
         const string json = """{"results":[],"number_of_results":0}""";
 
@@ -156,10 +155,11 @@ public class SearxngClientTests
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         });
 
-        var result = await client.SearchAsync("hello", new SearchRequestOptions(Page: 2), CancellationToken.None);
+        var response = await client.SearchRawAsync("hello", new SearchRequestOptions(Page: 2), CancellationToken.None);
 
-        Assert.Equal("hello", result.Metadata.Query);
-        Assert.Equal(2, result.Metadata.Page);
-        Assert.Equal(BaseUri.ToString(), result.Metadata.InstanceBaseUrl);
+        Assert.Equal(0, response.Metadata.ResultCount);
+        Assert.Equal("hello", response.Metadata.Query);
+        Assert.Equal(2, response.Metadata.Page);
+        Assert.Equal(BaseUri.ToString(), response.Metadata.InstanceBaseUrl);
     }
 }

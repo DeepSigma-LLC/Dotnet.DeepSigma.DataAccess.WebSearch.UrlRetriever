@@ -13,6 +13,10 @@ namespace DeepSigma.DataAccess.WebSearch.UrlRetriever;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
+    // Upper bound on the per-attempt timeout. Keeps the resilience pipeline's attempt
+    // timeout within a sane range; values above this almost always indicate misconfiguration.
+    private static readonly TimeSpan MaxTimeout = TimeSpan.FromMinutes(5);
+
     /// <summary>
     /// Registers <see cref="IUrlRetriever{TSearchOptions}"/> with a typed <see cref="HttpClient"/>,
     /// options validation, and a standard resilience pipeline (retry + circuit breaker + timeout).
@@ -34,8 +38,11 @@ public static class ServiceCollectionExtensions
                 o => o.BaseUri is not null && o.BaseUri.IsAbsoluteUri,
                 "BaseUri must be set to an absolute URI.")
             .Validate(
-                o => o.Timeout > TimeSpan.Zero && o.Timeout <= TimeSpan.FromMinutes(5),
-                "Timeout must be between 0 and 5 minutes.")
+                o => o.Timeout > TimeSpan.Zero && o.Timeout <= MaxTimeout,
+                $"Timeout must be between 0 and {MaxTimeout.TotalMinutes} minutes.")
+            .Validate(
+                o => !string.IsNullOrWhiteSpace(o.SearchPath) && o.SearchPath.StartsWith('/'),
+                "SearchPath must be a non-empty path starting with '/'.")
             .ValidateOnStart();
 
         services.AddHttpClient<IUrlRetriever<SearchRequestOptions>, SearxngClient>((sp, http) =>
@@ -76,7 +83,6 @@ public static class ServiceCollectionExtensions
             o.Timeout = options.Timeout;
             o.SearchPath = options.SearchPath;
             o.UserAgent = options.UserAgent;
-            o.ProbeInstanceOnStartup = options.ProbeInstanceOnStartup;
         });
     }
 }

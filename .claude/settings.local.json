@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dotnet build *)"
+      "Bash(dotnet build *)",
+      "Bash(dotnet test *)",
+      "Bash(dotnet pack *)",
+      "Bash(unzip -l DeepSigma.DataAccess.WebSearch.UrlExtractor/bin/Release/DeepSigma.DataAccess.WebSearch.UrlRetriever.1.1.0.nupkg)"
     ]
   }
 }

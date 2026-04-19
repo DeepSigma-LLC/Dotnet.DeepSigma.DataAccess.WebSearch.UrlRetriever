@@ -17,7 +17,7 @@ public sealed class SearxngOptions
     /// Absolute base URI of the SearXNG instance, e.g. https://searxng.example.com.
     /// Must be set to an absolute URI before the client is used; validated at startup.
     /// </summary>
-    public Uri BaseUri { get; set; } = null!;
+    public Uri? BaseUri { get; set; }
 
     /// <summary>
     /// Per-attempt timeout. Defaults to 10 seconds.
@@ -33,9 +33,4 @@ public sealed class SearxngOptions
     /// Optional User-Agent header value sent with every request.
     /// </summary>
     public string? UserAgent { get; set; }
-
-    /// <summary>
-    /// Probe the instance for JSON-format support at startup.
-    /// </summary>
-    public bool ProbeInstanceOnStartup { get; set; } = false;
 }

@@ -47,7 +47,7 @@ public class LiveTest
 
         await using var provider = services.BuildServiceProvider();
 
-        IUrlRetriver<SearchRequestOptions> searxng = provider.GetRequiredService<IUrlRetriver<SearchRequestOptions>>();
+        IUrlRetriever<SearchRequestOptions> searxng = provider.GetRequiredService<IUrlRetriever<SearchRequestOptions>>();
         using CancellationTokenSource cts = new();
         CancellationToken ct = cts.Token;
 

@@ -3,7 +3,7 @@
 A typed, production-ready .NET client library for [SearXNG](https://docs.searxng.org/dev/search_api.html) — the self-hostable, privacy-respecting metasearch engine. Built on `IHttpClientFactory`, source-generated `System.Text.Json`, and `Microsoft.Extensions.Http.Resilience` for a clean, testable, DI-friendly integration.
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com)
-[![NuGet](https://img.shields.io/badge/NuGet-1.1.0-004880)](https://github.com/DeepSigma-LLC/Dotnet.DeepSigma.DataAccess.WebSearch.UrlRetriever)
+[![NuGet](https://img.shields.io/nuget/v/DeepSigma.DataAccess.WebSearch.UrlRetriever.svg)](https://www.nuget.org/packages/DeepSigma.DataAccess.WebSearch.UrlRetriever)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
@@ -40,7 +40,7 @@ A typed, production-ready .NET client library for [SearXNG](https://docs.searxng
 ## Features
 
 - **Strongly typed** request and response models — no raw JSON leaks into application code
-- **Provider-neutral interface** (`IUrlRetriver<SearchRequestOptions>`) from `DeepSigma.DataAccess.WebSearch.Abstraction` — designed for future backend extensibility
+- **Provider-neutral interface** (`IUrlRetriever<SearchRequestOptions>`) from `DeepSigma.DataAccess.WebSearch.Abstraction` — designed for future backend extensibility
 - **Built-in resilience** via `Microsoft.Extensions.Http.Resilience` — retry, circuit breaker, and attempt timeout out of the box
 - **Source-generated JSON** deserialization via `System.Text.Json` — reflection-free and AOT/trim-safe
 - **Typed exceptions** with a clean hierarchy that maps HTTP and network conditions to actionable error types
@@ -98,7 +98,7 @@ using DeepSigma.DataAccess.WebSearch.Abstraction;
 using DeepSigma.DataAccess.WebSearch.Abstraction.Model;
 using DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 
-public class SearchService(IUrlRetriver<SearchRequestOptions> searxng)
+public class SearchService(IUrlRetriever<SearchRequestOptions> searxng)
 {
     public async Task<List<ResponseUrlRetrival>> FindAsync(
         string query,
@@ -143,20 +143,20 @@ catch (SearxngException ex)
 
 | Property | Type | Default | Required | Description |
 |---|---|---|---|---|
-| `BaseUri` | `Uri` | — | ✅ | Absolute base URI of the SearXNG instance, e.g. `https://searxng.example.com` |
+| `BaseUri` | `Uri?` | — | ✅ | Absolute base URI of the SearXNG instance, e.g. `https://searxng.example.com`. Must be non-null at startup. |
 | `Timeout` | `TimeSpan` | `00:00:10` | | Per-attempt timeout. Must be between `TimeSpan.Zero` and `00:05:00`. |
 | `SearchPath` | `string` | `"/search"` | | Path to the SearXNG search endpoint. |
 | `UserAgent` | `string?` | `null` | | Value sent as the `User-Agent` request header. Recommended when hitting public instances. |
-| `ProbeInstanceOnStartup` | `bool` | `false` | | Reserved for future capability detection. Has no runtime effect in v1. |
 
 Validation rules enforced eagerly at application startup:
 
 - `BaseUri` must be non-null and an absolute URI.
 - `Timeout` must be greater than `TimeSpan.Zero` and at most 5 minutes.
+- `SearchPath` must be non-empty and start with `/`.
 
 ### Registering with Dependency Injection
 
-`AddSearxngClient` registers `IUrlRetriver<SearchRequestOptions>` as a typed `HttpClient`, validates `SearxngOptions` eagerly on startup, and attaches a standard resilience pipeline. Two calling styles are supported:
+`AddSearxngClient` registers `IUrlRetriever<SearchRequestOptions>` as a typed `HttpClient`, validates `SearxngOptions` eagerly on startup, and attaches a standard resilience pipeline. Two calling styles are supported:
 
 **Configure via delegate** (recommended for `appsettings.json` integration):
 
@@ -199,6 +199,8 @@ services.AddSearxngClient(options =>
 
 ### Manual Construction (no DI)
 
+> **Note:** Manual construction skips the resilience pipeline that `AddSearxngClient` attaches (retry, circuit breaker, attempt timeout). Without that pipeline, `HttpClient.Timeout` is what actually governs request duration; `SearxngOptions.Timeout` has no runtime effect. For production use, prefer the DI registration above.
+
 ```csharp
 using DeepSigma.DataAccess.WebSearch.UrlRetriever;
 using DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
@@ -214,7 +216,6 @@ var httpClient = new HttpClient
 var options = new SearxngOptions
 {
     BaseUri   = new Uri("https://searxng.example.com"),
-    Timeout   = TimeSpan.FromSeconds(10),
     UserAgent = "MyConsoleApp/1.0"
 };
 
@@ -241,7 +242,7 @@ var requestOptions = new SearchRequestOptions(
     Categories: ["science", "news"],
     Engines:    ["google", "bing"]);
 
-var response = await client.SearchAsync("climate change research", requestOptions);
+List<ResponseUrlRetrival> results = await client.SearchAsync("climate change research", requestOptions);
 ```
 
 | Parameter | Type | Default | SearXNG field | Description |
@@ -268,8 +269,8 @@ var response = await client.SearchAsync("climate change research", requestOption
 ### `SearchResponse` Reference
 
 ```csharp
-// Use the SearxngClient directly for the rich SearchResponse
-SearchResponse response = await client.SearchAsync("open source", requestOptions);
+// Use SearchRawAsync on SearxngClient directly for the rich SearchResponse
+SearchResponse response = await client.SearchRawAsync("open source", requestOptions);
 
 Console.WriteLine(
     $"Found {response.Metadata.ResultCount} results on this page " +
@@ -369,7 +370,7 @@ Exception
 ```csharp
 try
 {
-    var response = await client.SearchAsync("query", requestOptions);
+    var results = await client.SearchAsync("query", requestOptions);
 }
 catch (SearxngBadRequestException ex)
 {
@@ -414,19 +415,21 @@ When registered via `AddSearxngClient`, the `HttpClient` is automatically wrappe
 
 ### Structured Logging
 
-`SearxngClient` emits a structured log entry on each successful search at the `Information` level:
+`SearxngClient` emits structured log entries across the request lifecycle:
 
-```
-SearXNG search completed in {ElapsedMs} ms with {Count} results
-```
+| Level | When | Message |
+|---|---|---|
+| `Debug` | Each successful search | `SearXNG search completed in {ElapsedMs} ms with {Count} results` |
+| `Warning` | Network failure / instance unreachable (maps to `SearxngUnavailableException`) | `SearXNG request failed` |
+| `Error` | Response body could not be deserialized (maps to `SearxngParseException`) | `Failed to parse SearXNG response` |
 
-Configure the log level in `appsettings.json`:
+The success log is emitted at `Debug` to keep per-query volume out of default `Information`-level sinks. Enable it in `appsettings.json`:
 
 ```json
 {
   "Logging": {
     "LogLevel": {
-      "DeepSigma.DataAccess.WebSearch.UrlRetriever.SearxngClient": "Information"
+      "DeepSigma.DataAccess.WebSearch.UrlRetriever.SearxngClient": "Debug"
     }
   }
 }
@@ -467,7 +470,7 @@ DeepSigma.DataAccess.WebSearch.UrlRetriever/
 │   └── SearxngResponseMapper.cs             # DTO → domain model mapper
 ├── Extensions/
 │   └── ServiceCollectionExtensions.cs       # AddSearxngClient DI extension
-└── SearxngClient.cs                         # IUrlRetriver<SearchRequestOptions> implementation
+└── SearxngClient.cs                         # IUrlRetriever<SearchRequestOptions> implementation
 
 DeepSigma.DataAccess.WebSearch.UrlRetriever.Test/
 ├── FakeHttpMessageHandler.cs                # HttpMessageHandler test double
@@ -517,7 +520,7 @@ Live tests skip automatically when no instance is reachable and skip with an inf
 
 1. Fork the repository and create a feature branch from `main`.
 2. Ensure `dotnet build` and `dotnet test` pass with zero errors and zero warnings.
-3. Keep the public API surface provider-neutral — avoid SearXNG-specific leakage into `IUrlRetriver<SearchRequestOptions>` or the model types.
+3. Keep the public API surface provider-neutral — avoid SearXNG-specific leakage into `IUrlRetriever<SearchRequestOptions>` or the model types.
 4. Add XML documentation comments (`///`) for any new public or internal members.
 5. Open a pull request against `main` with a clear description of the change and its motivation.
 
