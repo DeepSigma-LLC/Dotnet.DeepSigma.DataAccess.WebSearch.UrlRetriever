@@ -1,9 +1,9 @@
-# DeepSigma.DataAccess.WebSearch.UrlExtractor
+# DeepSigma.DataAccess.WebSearch.UrlRetriever
 
 A typed, production-ready .NET client library for [SearXNG](https://docs.searxng.org/dev/search_api.html) — the self-hostable, privacy-respecting metasearch engine. Built on `IHttpClientFactory`, source-generated `System.Text.Json`, and `Microsoft.Extensions.Http.Resilience` for a clean, testable, DI-friendly integration.
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com)
-[![NuGet](https://img.shields.io/badge/NuGet-1.0.0-004880)](https://github.com/DeepSigma-LLC/Dotnet.DeepSigma.DataAccess.WebSearch)
+[![NuGet](https://img.shields.io/badge/NuGet-1.1.0-004880)](https://github.com/DeepSigma-LLC/Dotnet.DeepSigma.DataAccess.WebSearch.UrlRetriever)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
@@ -19,7 +19,7 @@ A typed, production-ready .NET client library for [SearXNG](https://docs.searxng
   - [Registering with Dependency Injection](#registering-with-dependency-injection)
   - [Manual Construction (no DI)](#manual-construction-no-di)
 - [Making Requests](#making-requests)
-  - [SearchRequest Reference](#searchrequest-reference)
+  - [SearchRequestOptions Reference](#searchrequestoptions-reference)
   - [SafeSearchLevel Enum](#safesearchlevel-enum)
 - [Reading Responses](#reading-responses)
   - [SearchResponse Reference](#searchresponse-reference)
@@ -40,7 +40,7 @@ A typed, production-ready .NET client library for [SearXNG](https://docs.searxng
 ## Features
 
 - **Strongly typed** request and response models — no raw JSON leaks into application code
-- **Provider-neutral interface** (`ISearxngClient`) designed for future backend extensibility
+- **Provider-neutral interface** (`IUrlRetriver<SearchRequestOptions>`) from `DeepSigma.DataAccess.WebSearch.Abstraction` — designed for future backend extensibility
 - **Built-in resilience** via `Microsoft.Extensions.Http.Resilience` — retry, circuit breaker, and attempt timeout out of the box
 - **Source-generated JSON** deserialization via `System.Text.Json` — reflection-free and AOT/trim-safe
 - **Typed exceptions** with a clean hierarchy that maps HTTP and network conditions to actionable error types
@@ -66,13 +66,13 @@ A typed, production-ready .NET client library for [SearXNG](https://docs.searxng
 ### .NET CLI
 
 ```shell
-dotnet add package DeepSigma.DataAccess.WebSearch
+dotnet add package DeepSigma.DataAccess.WebSearch.UrlRetriever
 ```
 
 ### Package Manager Console
 
 ```powershell
-Install-Package DeepSigma.DataAccess.WebSearch
+Install-Package DeepSigma.DataAccess.WebSearch.UrlRetriever
 ```
 
 ---
@@ -94,17 +94,18 @@ builder.Services.AddSearxngClient(options =>
 ### 2. Inject and search
 
 ```csharp
-public class SearchService(ISearxngClient searxng)
+using DeepSigma.DataAccess.WebSearch.Abstraction;
+using DeepSigma.DataAccess.WebSearch.Abstraction.Model;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
+
+public class SearchService(IUrlRetriver<SearchRequestOptions> searxng)
 {
-    public async Task<IReadOnlyList<SearchResult>> FindAsync(
+    public async Task<List<ResponseUrlRetrival>> FindAsync(
         string query,
         CancellationToken ct = default)
     {
-        var response = await searxng.SearchAsync(
-            new SearchRequest(query, Language: "en"),
-            ct);
-
-        return response.Results;
+        return await searxng.SearchAsync(query,
+            new SearchRequestOptions(Language: "en"), ct);
     }
 }
 ```
@@ -114,9 +115,9 @@ public class SearchService(ISearxngClient searxng)
 ```csharp
 try
 {
-    var response = await searxng.SearchAsync(new SearchRequest("open source"), ct);
+    var results = await searxng.SearchAsync("open source");
 
-    foreach (var result in response.Results)
+    foreach (var result in results)
         Console.WriteLine($"{result.Title} — {result.Url}");
 }
 catch (SearxngUnsupportedFormatException)
@@ -155,7 +156,7 @@ Validation rules enforced eagerly at application startup:
 
 ### Registering with Dependency Injection
 
-`AddSearxngClient` registers `ISearxngClient` as a typed `HttpClient`, validates `SearxngOptions` eagerly on startup, and attaches a standard resilience pipeline. Two calling styles are supported:
+`AddSearxngClient` registers `IUrlRetriver<SearchRequestOptions>` as a typed `HttpClient`, validates `SearxngOptions` eagerly on startup, and attaches a standard resilience pipeline. Two calling styles are supported:
 
 **Configure via delegate** (recommended for `appsettings.json` integration):
 
@@ -199,6 +200,8 @@ services.AddSearxngClient(options =>
 ### Manual Construction (no DI)
 
 ```csharp
+using DeepSigma.DataAccess.WebSearch.UrlRetriever;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -215,7 +218,7 @@ var options = new SearxngOptions
     UserAgent = "MyConsoleApp/1.0"
 };
 
-ISearxngClient client = new SearxngClient(
+var client = new SearxngClient(
     httpClient,
     Options.Create(options),
     NullLogger<SearxngClient>.Instance);
@@ -225,24 +228,24 @@ ISearxngClient client = new SearxngClient(
 
 ## Making Requests
 
-### `SearchRequest` Reference
+### `SearchRequestOptions` Reference
 
-`SearchRequest` is an immutable positional record. Only `Query` is required; all other parameters are optional and fall back to the SearXNG instance's own defaults when omitted.
+`SearchRequestOptions` is an immutable positional record. All parameters are optional and fall back to the SearXNG instance's own defaults when omitted. The query string is passed separately to `SearchAsync`.
 
 ```csharp
-var request = new SearchRequest(
-    Query:      "climate change research",
+var requestOptions = new SearchRequestOptions(
     Page:       2,
     Language:   "en",
     TimeRange:  "year",
     SafeSearch: SafeSearchLevel.Moderate,
     Categories: ["science", "news"],
     Engines:    ["google", "bing"]);
+
+var response = await client.SearchAsync("climate change research", requestOptions);
 ```
 
 | Parameter | Type | Default | SearXNG field | Description |
 |---|---|---|---|---|
-| `Query` | `string` | — | `q` | The search query string. Must not be null, empty, or whitespace. |
 | `Page` | `int?` | `null` | `pageno` | One-based page number for pagination. `null` fetches the first page. |
 | `Language` | `string?` | `null` | `language` | BCP-47 language/region code, e.g. `en`, `en-US`, `fr`. |
 | `TimeRange` | `string?` | `null` | `time_range` | Time filter: `day`, `week`, `month`, or `year`. |
@@ -265,7 +268,8 @@ var request = new SearchRequest(
 ### `SearchResponse` Reference
 
 ```csharp
-SearchResponse response = await searxng.SearchAsync(request, ct);
+// Use the SearxngClient directly for the rich SearchResponse
+SearchResponse response = await client.SearchAsync("open source", requestOptions);
 
 Console.WriteLine(
     $"Found {response.Metadata.ResultCount} results on this page " +
@@ -338,7 +342,7 @@ foreach (SearchWarning warning in response.Warnings)
 
 ## Error Handling
 
-All exceptions thrown by `ISearxngClient` derive from `SearxngException`. Catch specific types for granular handling, or catch the abstract base for a single catch-all.
+All exceptions thrown by `SearxngClient` derive from `SearxngException`. Catch specific types for granular handling, or catch the abstract base for a single catch-all.
 
 ### Exception Hierarchy
 
@@ -365,7 +369,7 @@ Exception
 ```csharp
 try
 {
-    var response = await searxng.SearchAsync(request, ct);
+    var response = await client.SearchAsync("query", requestOptions);
 }
 catch (SearxngBadRequestException ex)
 {
@@ -422,7 +426,7 @@ Configure the log level in `appsettings.json`:
 {
   "Logging": {
     "LogLevel": {
-      "DeepSigma.DataAccess.WebSearch.SearxngClient": "Information"
+      "DeepSigma.DataAccess.WebSearch.UrlRetriever.SearxngClient": "Information"
     }
   }
 }
@@ -437,11 +441,9 @@ The standard resilience pipeline emits telemetry for retry attempts, circuit bre
 ## Project Structure
 
 ```
-DeepSigma.DataAccess.WebSearch/
-├── Abstractions/
-│   └── ISearxngClient.cs                    # Public contract — primary entry point
+DeepSigma.DataAccess.WebSearch.UrlRetriever/
 ├── Models/
-│   ├── SearchRequest.cs                     # Immutable input record
+│   ├── SearchRequestOptions.cs              # Immutable input record
 │   ├── SearchResponse.cs                    # Top-level response record
 │   ├── SearchResult.cs                      # Per-result record
 │   ├── SearchMetadata.cs                    # Request timing and instance info
@@ -465,13 +467,14 @@ DeepSigma.DataAccess.WebSearch/
 │   └── SearxngResponseMapper.cs             # DTO → domain model mapper
 ├── Extensions/
 │   └── ServiceCollectionExtensions.cs       # AddSearxngClient DI extension
-└── SearxngClient.cs                         # ISearxngClient implementation
+└── SearxngClient.cs                         # IUrlRetriver<SearchRequestOptions> implementation
 
-DeepSigma.DataAccess.WebSearch.Test/
+DeepSigma.DataAccess.WebSearch.UrlRetriever.Test/
 ├── FakeHttpMessageHandler.cs                # HttpMessageHandler test double
 ├── QueryBuilderTests.cs                     # Query encoding unit tests
 ├── ResponseMappingTests.cs                  # DTO → domain mapping unit tests
-└── SearxngClientTests.cs                    # End-to-end client unit tests
+├── SearxngClientTests.cs                    # End-to-end client unit tests
+└── LiveTest.cs                              # Live integration tests (requires SearXNG instance)
 ```
 
 ---
@@ -514,7 +517,7 @@ Live tests skip automatically when no instance is reachable and skip with an inf
 
 1. Fork the repository and create a feature branch from `main`.
 2. Ensure `dotnet build` and `dotnet test` pass with zero errors and zero warnings.
-3. Keep the public API surface provider-neutral — avoid SearXNG-specific leakage into `ISearxngClient` or the model types.
+3. Keep the public API surface provider-neutral — avoid SearXNG-specific leakage into `IUrlRetriver<SearchRequestOptions>` or the model types.
 4. Add XML documentation comments (`///`) for any new public or internal members.
 5. Open a pull request against `main` with a clear description of the change and its motivation.
 
