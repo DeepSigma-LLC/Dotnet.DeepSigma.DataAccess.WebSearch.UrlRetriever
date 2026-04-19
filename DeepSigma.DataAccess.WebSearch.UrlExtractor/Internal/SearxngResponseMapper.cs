@@ -17,7 +17,8 @@ internal static class SearxngResponseMapper
     /// Converts a deserialized SearXNG JSON response into a <see cref="SearchResponse"/>.
     /// </summary>
     /// <param name="dto">The deserialized JSON response from the SearXNG instance.</param>
-    /// <param name="request">
+    /// <param name="query">The search query.</param>
+    /// <param name="requestOptions">
     /// The original search request, used to populate <see cref="SearchMetadata.Query"/>
     /// and <see cref="SearchMetadata.Page"/>.
     /// </param>
@@ -33,7 +34,8 @@ internal static class SearxngResponseMapper
     /// </returns>
     internal static SearchResponse Map(
         SearxngJsonResponse dto,
-        SearchRequest request,
+        string query,
+        SearchRequestOptions requestOptions,
         Uri baseUri,
         TimeSpan duration)
     {
@@ -68,8 +70,8 @@ internal static class SearxngResponseMapper
             results,
             new SearchMetadata(
                 baseUri.ToString(),
-                request.Query,
-                request.Page,
+                query,
+                requestOptions.Page,
                 duration,
                 Partial: warnings.Count > 0,
                 ResultCount: results.Count,

@@ -53,7 +53,7 @@ public class SearxngClientTests
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         });
 
-        var result = await client.SearchAsync(new SearchRequest("test"), TestContext.Current.CancellationToken);
+        var result = await client.SearchAsync("test", cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Single(result.Results);
         Assert.Equal("Example", result.Results[0].Title);
@@ -72,7 +72,7 @@ public class SearxngClientTests
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         });
 
-        var result = await client.SearchAsync(new SearchRequest("test"), CancellationToken.None);
+        var result = await client.SearchAsync("test", cancellationToken: CancellationToken.None);
 
         Assert.Empty(result.Results);
         Assert.Equal(0, result.Metadata.ResultCount);
@@ -84,7 +84,7 @@ public class SearxngClientTests
         var client = CreateClient(new HttpResponseMessage(HttpStatusCode.OK));
 
         await Assert.ThrowsAsync<ArgumentNullException>(() =>
-            client.SearchAsync(null!, CancellationToken.None));
+            client.SearchAsync(null!, cancellationToken: CancellationToken.None));
     }
 
     [Fact]
@@ -93,7 +93,7 @@ public class SearxngClientTests
         var client = CreateClient(new HttpResponseMessage(HttpStatusCode.OK));
 
         await Assert.ThrowsAsync<ArgumentException>(() =>
-            client.SearchAsync(new SearchRequest(string.Empty), CancellationToken.None));
+            client.SearchAsync(string.Empty, cancellationToken: CancellationToken.None));
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public class SearxngClientTests
         var client = CreateClient(new HttpResponseMessage(HttpStatusCode.OK));
 
         await Assert.ThrowsAsync<ArgumentException>(() =>
-            client.SearchAsync(new SearchRequest("   "), CancellationToken.None));
+            client.SearchAsync("   ", cancellationToken: CancellationToken.None));
     }
 
     [Fact]
@@ -111,7 +111,7 @@ public class SearxngClientTests
         var client = CreateClient(new HttpResponseMessage(HttpStatusCode.Forbidden));
 
         await Assert.ThrowsAsync<SearxngUnsupportedFormatException>(() =>
-            client.SearchAsync(new SearchRequest("test"), CancellationToken.None));
+            client.SearchAsync("test", cancellationToken: CancellationToken.None));
     }
 
     [Fact]
@@ -120,7 +120,7 @@ public class SearxngClientTests
         var client = CreateClient(new HttpResponseMessage(HttpStatusCode.BadRequest));
 
         var ex = await Assert.ThrowsAsync<SearxngBadRequestException>(() =>
-            client.SearchAsync(new SearchRequest("test"), CancellationToken.None));
+            client.SearchAsync("test", cancellationToken: CancellationToken.None));
 
         Assert.Equal(400, ex.StatusCode);
     }
@@ -131,7 +131,7 @@ public class SearxngClientTests
         var client = CreateClientWithException(new HttpRequestException("connection refused"));
 
         await Assert.ThrowsAsync<SearxngUnavailableException>(() =>
-            client.SearchAsync(new SearchRequest("test"), CancellationToken.None));
+            client.SearchAsync("test", cancellationToken: CancellationToken.None));
     }
 
     [Fact]
@@ -143,7 +143,7 @@ public class SearxngClientTests
         });
 
         await Assert.ThrowsAsync<SearxngParseException>(() =>
-            client.SearchAsync(new SearchRequest("test"), CancellationToken.None));
+            client.SearchAsync("test", cancellationToken: CancellationToken.None));
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class SearxngClientTests
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         });
 
-        var result = await client.SearchAsync(new SearchRequest("hello", Page: 2), CancellationToken.None);
+        var result = await client.SearchAsync("hello", new SearchRequestOptions(Page: 2), CancellationToken.None);
 
         Assert.Equal("hello", result.Metadata.Query);
         Assert.Equal(2, result.Metadata.Page);

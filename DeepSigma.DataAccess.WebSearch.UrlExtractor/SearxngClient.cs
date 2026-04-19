@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
+using DeepSigma.DataAccess.WebSearch.Abstraction;
+using DeepSigma.DataAccess.WebSearch.Abstraction.Model;
 using DeepSigma.DataAccess.WebSearch.UrlRetriever.Exceptions;
 using DeepSigma.DataAccess.WebSearch.UrlRetriever.Internal;
 using DeepSigma.DataAccess.WebSearch.UrlRetriever.Internal.Dto;
@@ -11,9 +13,7 @@ using Microsoft.Extensions.Options;
 namespace DeepSigma.DataAccess.WebSearch.UrlRetriever;
 
 /// <summary>
-/// Default implementation of <see cref="ISearxngClient"/> that communicates with a SearXNG
-/// instance over HTTP using a typed <see cref="HttpClient"/> managed by
-/// <see cref="IHttpClientFactory"/>.
+/// 
 /// </summary>
 /// <remarks>
 /// Register this client via <see cref="ServiceCollectionExtensions.AddSearxngClient"/> rather than
@@ -21,7 +21,7 @@ namespace DeepSigma.DataAccess.WebSearch.UrlRetriever;
 /// eagerly validates <see cref="SearxngOptions"/>, and attaches a standard resilience pipeline
 /// (retry, circuit breaker, and attempt timeout).
 /// </remarks>
-public sealed class SearxngClient : ISearxngClient
+public sealed class SearxngClient :  IUrlRetriver<SearchRequestOptions>
 {
     private readonly HttpClient _httpClient;
     private readonly IOptions<SearxngOptions> _options;
@@ -43,9 +43,22 @@ public sealed class SearxngClient : ISearxngClient
         _logger = logger;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="query">The search query string.</param>
+    /// <param name="requestOptions">Optional parameters to customize the search request.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A list of <see cref="ResponseUrlRetrival"/> representing the search results.</returns>
+    public async Task<List<ResponseUrlRetrival>> SearchAsync(string query, SearchRequestOptions? requestOptions = null, CancellationToken? cancellationToken = null)
+    {
+        SearchResponse response = await SearchAsync(query, requestOptions, cancellationToken ?? CancellationToken.None);
+        return MapToResponseUrlRetrival(response).ToList();
+    }
+
     /// <inheritdoc/>
     /// <remarks>
-    /// Builds a percent-encoded query string from <paramref name="request"/>, dispatches an
+    /// Builds a percent-encoded query string from <paramref name="requestOptions"/>, dispatches an
     /// HTTP GET to <see cref="SearxngOptions.SearchPath"/>, and maps the JSON response to a
     /// <see cref="SearchResponse"/>. HTTP status codes are translated to typed exceptions:
     /// <list type="table">
@@ -75,15 +88,16 @@ public sealed class SearxngClient : ISearxngClient
     ///   </item>
     /// </list>
     /// </remarks>
-    public async Task<SearchResponse> SearchAsync(SearchRequest request, CancellationToken cancellationToken = default)
+    public async Task<SearchResponse> SearchAsync(string query, SearchRequestOptions? requestOptions = null, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(query);
 
-        if (string.IsNullOrWhiteSpace(request.Query))
-            throw new ArgumentException("Query is required.", nameof(request));
+        if (string.IsNullOrWhiteSpace(query))
+            throw new ArgumentException("Query is required.", nameof(requestOptions));
 
         var sw = Stopwatch.StartNew();
-        var queryString = SearxngQueryBuilder.Build(request);
+        requestOptions ??= new SearchRequestOptions();
+        var queryString = SearxngQueryBuilder.Build(query, requestOptions);
         var path = $"{_options.Value.SearchPath}?{queryString}";
 
         try
@@ -125,7 +139,7 @@ public sealed class SearxngClient : ISearxngClient
 
             sw.Stop();
 
-            var result = SearxngResponseMapper.Map(dto, request, _httpClient.BaseAddress!, sw.Elapsed);
+            var result = SearxngResponseMapper.Map(dto, query, requestOptions, _httpClient.BaseAddress!, sw.Elapsed);
 
             _logger.LogInformation(
                 "SearXNG search completed in {ElapsedMs} ms with {Count} results",
@@ -148,4 +162,30 @@ public sealed class SearxngClient : ISearxngClient
                 "Failed to reach the SearXNG instance.", ex);
         }
     }
+
+    private static IEnumerable<ResponseUrlRetrival> MapToResponseUrlRetrival(SearchResponse response)
+    {
+        foreach (var item in response.Results)
+        {
+            ResponseUrlRetrival responseUrl = new(
+                Url: item.Url,
+                Title: item.Title,
+                Snippet: item.Snippet,
+                EngineRelevanceScore: item.Score,
+                RetrievedAt: DateTimeOffset.UtcNow,
+                ParsedUrls: item.ParsedUrls ?? [],
+                Engines: item.Engines ?? [],
+                Category: item.Category,
+                SearchEngine: item.Engine,
+                PublishedDate: item.PublishedDate,
+                Author: item.Author,
+                Thumbnail: item.Thumbnail,
+                ImageUrl: item.ImageUrl,
+                IframeSrc: item.IframeSrc,
+                PrettyUrl: item.PrettyUrl
+                );
+            yield return responseUrl;
+        }
+    }
+
 }

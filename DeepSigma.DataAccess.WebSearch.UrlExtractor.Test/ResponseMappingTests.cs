@@ -21,7 +21,7 @@ public class ResponseMappingTests
             ]
         };
 
-        var response = SearxngResponseMapper.Map(dto, new SearchRequest("query"), BaseUri, TimeSpan.FromMilliseconds(50));
+        var response = SearxngResponseMapper.Map(dto, "query", new SearchRequestOptions(), BaseUri, TimeSpan.FromMilliseconds(50));
 
         Assert.Equal(2, response.Results.Count);
         Assert.Equal("Result 1", response.Results[0].Title);
@@ -36,7 +36,7 @@ public class ResponseMappingTests
     {
         var dto = new SearxngJsonResponse { Results = null };
 
-        var response = SearxngResponseMapper.Map(dto, new SearchRequest("query"), BaseUri, TimeSpan.Zero);
+        var response = SearxngResponseMapper.Map(dto, "query", new SearchRequestOptions(), BaseUri, TimeSpan.Zero);
 
         Assert.Empty(response.Results);
     }
@@ -54,7 +54,7 @@ public class ResponseMappingTests
             ]
         };
 
-        var response = SearxngResponseMapper.Map(dto, new SearchRequest("query"), BaseUri, TimeSpan.Zero);
+        var response = SearxngResponseMapper.Map(dto, "query", new SearchRequestOptions(), BaseUri, TimeSpan.Zero);
 
         Assert.Single(response.Results);
         Assert.Equal("Valid", response.Results[0].Title);
@@ -66,7 +66,7 @@ public class ResponseMappingTests
         var dto = new SearxngJsonResponse { Results = [] };
         var duration = TimeSpan.FromMilliseconds(123);
 
-        var response = SearxngResponseMapper.Map(dto, new SearchRequest("my query", Page: 2), BaseUri, duration);
+        var response = SearxngResponseMapper.Map(dto, "my query", new SearchRequestOptions(Page: 2), BaseUri, duration);
 
         Assert.Equal("my query", response.Metadata.Query);
         Assert.Equal(2, response.Metadata.Page);
@@ -83,7 +83,7 @@ public class ResponseMappingTests
             Results = [new SearxngJsonResult { Title = null, Url = "https://example.com" }]
         };
 
-        var response = SearxngResponseMapper.Map(dto, new SearchRequest("query"), BaseUri, TimeSpan.Zero);
+        var response = SearxngResponseMapper.Map(dto, "query", new SearchRequestOptions(), BaseUri, TimeSpan.Zero);
 
         Assert.Equal(string.Empty, response.Results[0].Title);
     }
@@ -93,7 +93,7 @@ public class ResponseMappingTests
     {
         var dto = new SearxngJsonResponse { Results = [], NumberOfResults = 1234 };
 
-        var response = SearxngResponseMapper.Map(dto, new SearchRequest("query"), BaseUri, TimeSpan.Zero);
+        var response = SearxngResponseMapper.Map(dto, "query", new SearchRequestOptions(), BaseUri, TimeSpan.Zero);
 
         Assert.Equal(1234, response.Metadata.TotalResults);
     }
@@ -109,7 +109,7 @@ public class ResponseMappingTests
             Suggestions = ["hello world", "hello there"]
         };
 
-        var response = SearxngResponseMapper.Map(dto, new SearchRequest("query"), BaseUri, TimeSpan.Zero);
+        var response = SearxngResponseMapper.Map(dto, "query", new SearchRequestOptions(), BaseUri, TimeSpan.Zero);
 
         Assert.Equal(["42"], response.Answers);
         Assert.Equal(["did you mean: hello"], response.Corrections);
@@ -121,8 +121,7 @@ public class ResponseMappingTests
     {
         var dto = new SearxngJsonResponse { Results = [] };
 
-        var response = SearxngResponseMapper.Map(dto, new SearchRequest("query"), BaseUri, TimeSpan.Zero);
-
+        var response = SearxngResponseMapper.Map(dto, "query", new SearchRequestOptions(), BaseUri, TimeSpan.Zero);
         Assert.Empty(response.Answers);
         Assert.Empty(response.Corrections);
         Assert.Empty(response.Suggestions);
@@ -137,7 +136,7 @@ public class ResponseMappingTests
             UnresponsiveEngines = [["google", "HTTP error"], ["bing", "timeout"]]
         };
 
-        var response = SearxngResponseMapper.Map(dto, new SearchRequest("query"), BaseUri, TimeSpan.Zero);
+        var response = SearxngResponseMapper.Map(dto, "query", new SearchRequestOptions(), BaseUri, TimeSpan.Zero);
 
         Assert.True(response.Metadata.Partial);
         Assert.Equal(2, response.Warnings.Count);
@@ -153,7 +152,7 @@ public class ResponseMappingTests
     {
         var dto = new SearxngJsonResponse { Results = [] };
 
-        var response = SearxngResponseMapper.Map(dto, new SearchRequest("query"), BaseUri, TimeSpan.Zero);
+        var response = SearxngResponseMapper.Map(dto, "query", new SearchRequestOptions(), BaseUri, TimeSpan.Zero);
 
         Assert.False(response.Metadata.Partial);
         Assert.Empty(response.Warnings);
@@ -179,7 +178,7 @@ public class ResponseMappingTests
             ]
         };
 
-        var response = SearxngResponseMapper.Map(dto, new SearchRequest("query"), BaseUri, TimeSpan.Zero);
+        var response = SearxngResponseMapper.Map(dto, "query", new SearchRequestOptions(), BaseUri, TimeSpan.Zero);
         var result = response.Results[0];
 
         Assert.Equal("images.html", result.Template);

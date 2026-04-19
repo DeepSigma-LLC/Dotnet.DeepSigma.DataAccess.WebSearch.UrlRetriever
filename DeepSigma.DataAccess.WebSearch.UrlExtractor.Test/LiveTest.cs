@@ -1,4 +1,5 @@
-﻿using DeepSigma.DataAccess.WebSearch.UrlRetriever.Exceptions;
+﻿using DeepSigma.DataAccess.WebSearch.Abstraction;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Exceptions;
 using DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -46,15 +47,15 @@ public class LiveTest
 
         await using var provider = services.BuildServiceProvider();
 
-        ISearxngClient searxng = provider.GetRequiredService<ISearxngClient>();
+        IUrlRetriver<SearchRequestOptions> searxng = provider.GetRequiredService<IUrlRetriver<SearchRequestOptions>>();
         using CancellationTokenSource cts = new();
         CancellationToken ct = cts.Token;
 
         try
         {
-            var response = await searxng.SearchAsync(new SearchRequest("open source"), ct);
+            var response = await searxng.SearchAsync("open source", cancellationToken: ct);
 
-            Assert.NotEmpty(response.Results);
+            Assert.NotEmpty(response);
         }
         catch (SearxngUnsupportedFormatException)
         {

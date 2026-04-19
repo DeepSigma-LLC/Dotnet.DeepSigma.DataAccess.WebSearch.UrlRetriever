@@ -1,7 +1,9 @@
+using DeepSigma.DataAccess.WebSearch.Abstraction;
+
 namespace DeepSigma.DataAccess.WebSearch.UrlRetriever;
 
 /// <summary>
-/// Strongly-typed configuration options for <see cref="ISearxngClient"/>.
+/// Strongly-typed configuration options for <see cref="IUrlRetriver{SearchRequestOptions}"/>.
 /// </summary>
 /// <remarks>
 /// Register and validate these options by calling

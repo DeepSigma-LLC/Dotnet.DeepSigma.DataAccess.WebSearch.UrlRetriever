@@ -1,11 +1,9 @@
+﻿
 namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 
 /// <summary>
-/// Encapsulates all parameters for a SearXNG search request.
+/// Represents the optional parameters that can be included in a search request to a SearXNG instance.
 /// </summary>
-/// <param name="Query">
-/// The search query string. Must not be <see langword="null"/>, empty, or whitespace.
-/// </param>
 /// <param name="Page">
 /// One-based page number for paginating through results.
 /// <see langword="null"/> requests the first page (the SearXNG default).
@@ -32,8 +30,7 @@ namespace DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 /// e.g. <c>google</c>, <c>bing</c>.
 /// <see langword="null"/> defers to the instance default.
 /// </param>
-public sealed record SearchRequest(
-    string Query,
+public sealed record SearchRequestOptions(
     int? Page = null,
     string? Language = null,
     string? TimeRange = null,

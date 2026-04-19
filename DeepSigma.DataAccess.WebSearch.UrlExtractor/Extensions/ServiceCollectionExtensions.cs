@@ -2,6 +2,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Http.Resilience;
+using DeepSigma.DataAccess.WebSearch.Abstraction;
+using DeepSigma.DataAccess.WebSearch.UrlRetriever.Models;
 
 namespace DeepSigma.DataAccess.WebSearch.UrlRetriever;
 
@@ -12,7 +14,7 @@ namespace DeepSigma.DataAccess.WebSearch.UrlRetriever;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers <see cref="ISearxngClient"/> with a typed <see cref="HttpClient"/>,
+    /// Registers <see cref="IUrlRetriver{TSearchOptions}"/> with a typed <see cref="HttpClient"/>,
     /// options validation, and a standard resilience pipeline (retry + circuit breaker + timeout).
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add services to.</param>
@@ -36,7 +38,7 @@ public static class ServiceCollectionExtensions
                 "Timeout must be between 0 and 5 minutes.")
             .ValidateOnStart();
 
-        services.AddHttpClient<ISearxngClient, SearxngClient>((sp, http) =>
+        services.AddHttpClient<IUrlRetriver<SearchRequestOptions>, SearxngClient>((sp, http) =>
         {
             var options = sp.GetRequiredService<IOptions<SearxngOptions>>().Value;
 
@@ -56,7 +58,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registers <see cref="ISearxngClient"/> using a pre-configured <see cref="SearxngOptions"/>
+    /// Registers <see cref="IUrlRetriver{TSearchOptions}"/> using a pre-configured <see cref="SearxngOptions"/>
     /// instance, with a standard resilience pipeline (retry + circuit breaker + timeout).
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add services to.</param>
